@@ -779,6 +779,8 @@ class apogeeSelect(apogeeSelectPlotsMixin):
            2013-11-11 - Written - Bovy (IAS)
         """
         locIndx= self._locations == location
+        if sum(locIndx) < 1:
+            raise IOError("no matching location in the selection function")
         #Handle input
         scalarOut= True
         if isinstance(H,(int,float,numpy.float32,numpy.float64)): #Scalar input
@@ -1321,20 +1323,17 @@ class apogeeSelect(apogeeSelectPlotsMixin):
         if locations is None:
             locations= list(set(apogeeDesign[self._designsIndx]['LOCATION_ID']))
         #initial check to make sure all locations are in the apogeePlate file
-        badlocindx = np.zeros(len(locations), dtype=bool)
+        badlocindx = numpy.zeros(len(locations), dtype=bool)
         for ii in range(len(locations)):
             pindx= apogeePlate['LOCATION_ID'] == locations[ii]
             if numpy.sum(pindx) == 0:
                 badlocindx[ii] = True
         if badlocindx.all():
-            raise IOError("None of the input locations are in the apogeePlate file being used. This could indicate a mismatch in the files being loaded,\
-                            or, if you have supplied locations via the keyword argument, could indicate that you havent supplied any locations which are included in \
-                           the selection function.")
+            raise IOError("None of the input locations are in the apogeePlate file being used. This could indicate a mismatch in the files being loaded, or, if you have supplied locations via the keyword argument, could indicate that you havent supplied any locations which are included in the selection function.")
         elif badlocindx.any():
-            warnings.warn("%s of the input locations is not in the apogeePlate file being used. This could indicate a mismatch in the files being loaded,\
-                            or, if you have supplied locations via the keyword argument, could indicate that you have supplied locations which are included in \
-                           the selection function. These locations are being removed from further evaluation of the selection function." % (sum(badlocindx)))
-        self._locations= numpy.array(locations[~badlocindx])
+            warnings.warn("%s of the input locations is not in the apogeePlate file being used. This could indicate a mismatch in the files being loaded, or, if you have supplied locations via the keyword argument, could indicate that you have supplied locations which are included in the selection function. These locations are being removed from further evaluation of the selection function." % (sum(badlocindx)))
+        self._locations= numpy.array(locations)[~badlocindx]
+        self._locations_not_used = numpy.array(locations)[badlocindx]
         locPlatesIndx= numpy.zeros((len(self._locations),20),dtype='int')-1 #There can be more than 8 plates bc of redrilling
         locDesignsIndx= numpy.zeros((len(self._locations),20),dtype='int')-1 #At most 8 designs / location, but we match to plates
         dummyIndxArray= numpy.arange(len(apogeePlate['PLATE_ID']),dtype='int')
@@ -2369,6 +2368,8 @@ class apogeeCombinedSelect(apogeeSelectPlotsMixin):
            2018-04-12 - Adapted - Mackereth (LJMU)
         """
         locIndx= self._locations == location
+        if sum(locIndx) < 1:
+            raise IOError("No matching location in the selection function")
         #Handle input
         scalarOut= False
         if isinstance(H,(int,float,numpy.float32,numpy.float64)): #Scalar input
