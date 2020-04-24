@@ -1258,9 +1258,10 @@ class apogeeSelect(apogeeSelectPlotsMixin):
             if numpy.sum(origobslog['Plate'] == apogeePlate['PLATE_ID'][ii]) == 0:
                 pindx[ii]= False
             if apogeePlate['PLATE_ID'][ii] in _COMPLATES:
+                #commissioning plates are removed here... so we  wont see these when we check for loc in apogeePlate...
                 pindx[ii]= False
         apogeePlate= apogeePlate[pindx]
-        #reverse this do clean out plates in allPlate but not in the obslog (?)
+        #reverse this to clean out plates in allPlate but not in the obslog (?)
         oindx= numpy.ones(len(obslog),dtype='bool')
         for ii in range(len(obslog)):
             if numpy.sum(apogeePlate['PLATE_ID'] == obslog['Plate'][ii]) == 0:
@@ -1319,7 +1320,21 @@ class apogeeSelect(apogeeSelectPlotsMixin):
         #Now match plates and designs with fields
         if locations is None:
             locations= list(set(apogeeDesign[self._designsIndx]['LOCATION_ID']))
-        self._locations= numpy.array(locations)
+        #initial check to make sure all locations are in the apogeePlate file
+        badlocindx = np.zeros(len(locations), dtype=bool)
+        for ii in range(len(locations)):
+            pindx= apogeePlate['LOCATION_ID'] == locations[ii]
+            if numpy.sum(pindx) == 0:
+                badlocindx[ii] = True
+        if badlocindx.all():
+            raise IOError("None of the input locations are in the apogeePlate file being used. This could indicate a mismatch in the files being loaded,\
+                            or, if you have supplied locations via the keyword argument, could indicate that you havent supplied any locations which are included in \
+                           the selection function.")
+        elif badlocindx.any():
+            warnings.warn("%s of the input locations is not in the apogeePlate file being used. This could indicate a mismatch in the files being loaded,\
+                            or, if you have supplied locations via the keyword argument, could indicate that you have supplied locations which are included in \
+                           the selection function. These locations are being removed from further evaluation of the selection function." % (sum(badlocindx)))
+        self._locations= numpy.array(locations[~badlocindx])
         locPlatesIndx= numpy.zeros((len(self._locations),20),dtype='int')-1 #There can be more than 8 plates bc of redrilling
         locDesignsIndx= numpy.zeros((len(self._locations),20),dtype='int')-1 #At most 8 designs / location, but we match to plates
         dummyIndxArray= numpy.arange(len(apogeePlate['PLATE_ID']),dtype='int')
