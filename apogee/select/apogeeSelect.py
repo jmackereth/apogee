@@ -779,8 +779,15 @@ class apogeeSelect(apogeeSelectPlotsMixin):
            2013-11-11 - Written - Bovy (IAS)
         """
         locIndx= self._locations == location
+        badloc = numpy.in1d(location, self._locations_not_used)
         if sum(locIndx) < 1:
-            raise IOError("no matching location in the selection function")
+            raise IOError("No matching location in the selection function")
+        if badloc:
+            #location is not in the selection function so return 0.
+            if isinstance(H,(int,float,numpy.float32,numpy.float64)):
+                return 0.
+            else:
+                return numpy.zeros_like(H)
         #Handle input
         scalarOut= True
         if isinstance(H,(int,float,numpy.float32,numpy.float64)): #Scalar input
@@ -2368,8 +2375,15 @@ class apogeeCombinedSelect(apogeeSelectPlotsMixin):
            2018-04-12 - Adapted - Mackereth (LJMU)
         """
         locIndx= self._locations == location
+        badloc = numpy.in1d(location, self._locations_not_used)
         if sum(locIndx) < 1:
             raise IOError("No matching location in the selection function")
+        if badloc:
+            #location is not in the selection function so return 0.
+            if isinstance(H,(int,float,numpy.float32,numpy.float64)):
+                return 0.
+            else:
+                return numpy.zeros_like(H)
         #Handle input
         scalarOut= False
         if isinstance(H,(int,float,numpy.float32,numpy.float64)): #Scalar input
