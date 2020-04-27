@@ -2270,6 +2270,7 @@ class apogeeCombinedSelect(apogeeSelectPlotsMixin):
             if len(aposels) > 2:
                 self.apo2Ssel = aposels[2]
         self._locations = numpy.concatenate([sel._locations for sel in aposels])
+        self._locations_not_used = numpy.unique(numpy.concatenate([sel._locations_not_used for sel in aposels]))
         self._apo1_locations = self.apo1sel._locations
         self._apo2N_locations = self.apo2Nsel._locations
         if len(aposels) > 2:
