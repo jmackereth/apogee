@@ -780,9 +780,8 @@ class apogeeSelect(apogeeSelectPlotsMixin):
         """
         locIndx= self._locations == location
         badloc = numpy.in1d(location, self._locations_not_used)
-        if sum(locIndx) < 1:
-            raise IOError("No matching location in the selection function")
-        if badloc:
+        if badloc or (sum(locIndx) < 1):
+            warnings.warn("No matching location in this selection function")
             #location is not in the selection function so return 0.
             if isinstance(H,(int,float,numpy.float32,numpy.float64)):
                 return 0.
@@ -2377,9 +2376,8 @@ class apogeeCombinedSelect(apogeeSelectPlotsMixin):
         """
         locIndx= self._locations == location
         badloc = numpy.in1d(location, self._locations_not_used)
-        if sum(locIndx) < 1:
-            raise IOError("No matching location in the selection function")
-        if badloc:
+        if badloc or (sum(locIndx) < 1):
+            warnings.warn("No matching location in this selection function")
             #location is not in the selection function so return 0.
             if isinstance(H,(int,float,numpy.float32,numpy.float64)):
                 return 0.
