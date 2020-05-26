@@ -698,22 +698,6 @@ class apogeeSelectPlotsMixin:
 class apogeeSelect(apogeeSelectPlotsMixin):
     """Superclass defining general selection functions for APOGEE targets"""
 
-    def _coordinateDecorator():
-        """ decorator to accept coordinate input into selection function calls """
-        # (modified) old degree decorator
-        def wrapper(func):
-            @wraps(func)
-            def wrapped(*args, **kwargs):
-                iscoord = kwargs.get('coordinate', False)
-                if iscoord:
-                out = func(*args, **kwargs)
-                if isdeg:
-                    for i in outDegrees:
-                        out[:, i] *= 180. / numpy.pi
-                return out
-            return wrapped
-        return wrapper
-
     def __init__(self,sample='main',
                  locations=None,
                  year=None,
@@ -781,10 +765,6 @@ class apogeeSelect(apogeeSelectPlotsMixin):
                                   minnspec=minnspec)
         sys.stdout.write('\r'+_ERASESTR+'\r')
         sys.stdout.flush()
-        #store all the coordinates of the locations for later use (coordinate input)
-        locations_lon_lat = np.array([self.glonGlat(i) for i in self._locations])
-        locations_lon_lat = locations_lon_lat.reshape(np.shape(locations_lon_lat)[:2])
-        self.locations_lon_lat = SkyCoord(locations_lon_lat[:,0]*unit.deg, locations_lon_lat[:,1]*unit.deg)
         return None
 
     def __call__(self,location,H,JK0=None):
@@ -2380,8 +2360,6 @@ class apogeeCombinedSelect(apogeeSelectPlotsMixin):
             self._nphot_long = numpy.concatenate([sel._nphot_long for sel in aposels])
             self._determine_selection(sample=sample,sftype=sftype,
                                       minnspec=minnspec)
-            locations_lon_lat = np.array([self.glonGlat(i) for i in self._locations])
-            self.locations_lon_lat = locations_lon_lat.reshape(np.shape(locations_lon_lat)[:2])
 
     def __call__(self, location, H, JK0):
         """
