@@ -2322,7 +2322,7 @@ class apogeeCombinedSelect(apogeeSelectPlotsMixin):
         if len(aposels) > 2:
             self._2Splates = apo2Ssel._plates
         self._plates = numpy.concatenate([sel._plates for sel in aposels])
-        self._loc_design_radius = numpy.concatenate([sel._loc_design_radius for sel in aposels]
+        self._loc_design_radius = numpy.concatenate([sel._loc_design_radius for sel in aposels])
         if not _justprocessobslog:
             #also make the nspec the same for apo1 as apo2
             apo1_nspec = numpy.ones([len(apo1sel._locations), 5])*numpy.nan
