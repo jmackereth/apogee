@@ -2886,8 +2886,6 @@ class apogeeCombinedSelect(apogeeSelectPlotsMixin):
                     design = self._apogee2SDesign
                     desIndx = self._designs2SIndx
                     locs = self._apo2S_locations
-                else:
-                    continue
             else:
                 continue
             if isinstance(specdata['VISITS'][ii], (bytes,numpy.bytes_)):
